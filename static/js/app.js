@@ -1,5 +1,7 @@
+// This is the URL for the API call.
 const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json"
 
+// This is the initial stage of the page at the beginning, when it initially loads.
 function init() {
   d3.json(url).then(function(data){
     let names = data.names;
@@ -8,6 +10,8 @@ function init() {
     names.forEach(name => {
       dropdown.append("option").text(name).property("value", name);
     });
+    // These are the 4 functions that define the demographics table, bar chart, gauge chart, and bubble chart.
+    // Since the initial setting is the 1st id value, those 4 are set to the same value when the page loads.
     demographics(names[0]);
     barChart(names[0]);
     gaugeChart(names[0]);
@@ -15,6 +19,7 @@ function init() {
   });
 };
 
+// This function gets all of the meta data for the specific id that has been chosen in the dropdown menu.
 function demographics(ids) {
   let demoBox = d3.select("#sample-metadata");
   d3.json(url).then(function(data){
@@ -22,7 +27,6 @@ function demographics(ids) {
       return person.id == ids;
     }
     let meta = data.metadata.filter(findIdData)[0];
-    //console.log(meta);
     let text = `id: ${meta.id} <br>
       ethnicity: ${meta.ethnicity} <br>
       gender: ${meta.gender} <br>
@@ -35,6 +39,9 @@ function demographics(ids) {
   })
 }
 
+// This function gets the data for the bar chart in the samples dictionary. For each id number,
+// the OTU id and sample_values arrays are paired and listed in decending order by sample_values.
+// We find the top 10 values, which are the same as the first 10 values, and then graph them.
 function barChart(ids) {
   d3.json(url).then(function(data){
     function findIdData(person) {
@@ -68,13 +75,15 @@ function barChart(ids) {
   });
 };
 
+// This function creates the bubble chart at the bottom of the page. It takes in the samples data,
+// and then maps the otu_id and sample_values as the point on the graph, with the sample_values as
+// the size of the bubble in the chart.
 function bubbleChart(ids) {
   d3.json(url).then(function(data){
     function findIdData(person) {
       return person.id == ids;
     };
     let samples = data.samples.filter(findIdData)[0];
-    console.log(samples);
 
     var trace1 = {
       x: samples.otu_ids,
@@ -93,7 +102,6 @@ function bubbleChart(ids) {
     var layout = {
       xaxis: {title: "OTU ID"},
       showlegend: false,
-      //height: 600,
       margin: {
         l: 50,
         r: 0,
@@ -106,14 +114,13 @@ function bubbleChart(ids) {
   })
 };
 
+// This function creates the gauge chart on the page.
 function gaugeChart(ids) {
   d3.json(url).then(function(data){
     function findIdData(person) {
       return person.id == ids;
     };
     let wash = data.metadata.filter(findIdData)[0].wfreq;
-    
-    console.log(wash);
     
     var trace1 = {
       domain: {
@@ -168,7 +175,6 @@ function gaugeChart(ids) {
           showarrow: true,
           arrowcolor: "red",
           arrowwidth: 3
-          // arrowhead: 9
         }
       ]
     }
@@ -179,13 +185,14 @@ function gaugeChart(ids) {
   );
 };
 
+// This is the built-in function in the index.html file, and so updates all 4
+// items on the page when the dropdown changes.
 function optionChanged() {
   let id = d3.select("#selDataset").property("value");
   demographics(id);
   barChart(id);
   gaugeChart(id);
   bubbleChart(id);
-  //return id;
 }
 
 init();
